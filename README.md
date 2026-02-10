@@ -1,36 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MoodCompass
+
+AI-powered mood tracking and insights for bipolar disorder management.
+
+## Features
+
+- **Mood Tracking** — Log mood, energy, anxiety, irritability, and sleep with visual charts
+- **AI Insights** — Get personalized pattern analysis powered by Claude
+- **Guided Journal** — Write journal entries with AI-generated prompts
+- **Medication Tracker** — Track medications and log adherence
+- **Crisis Support** — Persistent 988 Suicide & Crisis Lifeline banner
+
+## Tech Stack
+
+- [Next.js](https://nextjs.org/) 15 (App Router)
+- [TypeScript](https://www.typescriptlang.org/)
+- [Tailwind CSS](https://tailwindcss.com/) + [shadcn/ui](https://ui.shadcn.com/)
+- [Drizzle ORM](https://orm.drizzle.team/) + [Supabase](https://supabase.com/) (PostgreSQL)
+- [NextAuth.js](https://authjs.dev/) v5 (Credentials + Google OAuth)
+- [Anthropic Claude API](https://docs.anthropic.com/) for AI features
+- [Recharts](https://recharts.org/) for data visualization
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js 18+
+- A Supabase project (free tier works)
+- Anthropic API key (for AI features)
+
+### Setup
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/mood-compass.git
+   cd mood-compass
+   ```
+
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+
+3. Copy the environment file and fill in your values:
+   ```bash
+   cp .env.example .env.local
+   ```
+
+4. Push the database schema:
+   ```bash
+   npx drizzle-kit push
+   ```
+
+5. Start the development server:
+   ```bash
+   npm run dev
+   ```
+
+6. Open [http://localhost:3000](http://localhost:3000)
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── (auth)/          # Sign in / Sign up pages
+│   ├── (dashboard)/     # Authenticated app pages
+│   │   ├── mood/        # Mood tracking
+│   │   ├── journal/     # Journal entries
+│   │   ├── medications/ # Medication tracking
+│   │   ├── insights/    # AI insights
+│   │   └── settings/    # User settings
+│   └── api/             # API routes
+├── components/          # Reusable UI components
+└── lib/                 # Database, auth, utilities
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Contributing
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Disclaimer
 
-## Learn More
+MoodCompass is **not a replacement for professional medical care**. Always consult your healthcare provider about your treatment plan. If you are in crisis, call or text **988** (Suicide & Crisis Lifeline).
 
-To learn more about Next.js, take a look at the following resources:
+## License
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+This project is licensed under the [AGPL-3.0](LICENSE).
