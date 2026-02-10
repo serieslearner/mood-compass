@@ -28,7 +28,7 @@ import {
 } from "lucide-react";
 
 const navItems = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/mood", label: "Mood", icon: SmilePlus },
   { href: "/journal", label: "Journal", icon: BookOpen },
   { href: "/medications", label: "Medications", icon: Pill },
@@ -65,8 +65,8 @@ export function Header() {
           <nav className="flex flex-col gap-1 p-3">
             {navItems.map((item) => {
               const isActive =
-                item.href === "/"
-                  ? pathname === "/"
+                item.href === "/dashboard"
+                  ? pathname === "/dashboard"
                   : pathname.startsWith(item.href);
               return (
                 <Link

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -39,11 +40,14 @@ export function MoodForm() {
       });
 
       if (res.ok) {
+        toast.success("Mood entry saved!");
         router.push("/mood");
         router.refresh();
+      } else {
+        toast.error("Failed to save mood entry");
       }
     } catch {
-      // handle error
+      toast.error("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
     }

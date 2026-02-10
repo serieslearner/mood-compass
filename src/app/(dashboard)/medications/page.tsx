@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -64,14 +65,17 @@ export default function MedicationsPage() {
       });
 
       if (res.ok) {
+        toast.success("Medication added!");
         setName("");
         setDosage("");
         setFrequency("");
         setDialogOpen(false);
         fetchMedications();
+      } else {
+        toast.error("Failed to add medication");
       }
     } catch {
-      // handle error
+      toast.error("Something went wrong");
     } finally {
       setSaving(false);
     }
@@ -79,13 +83,18 @@ export default function MedicationsPage() {
 
   async function logMedication(medicationId: string, skipped: boolean) {
     try {
-      await fetch("/api/medications", {
+      const res = await fetch("/api/medications", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ medicationId, skipped }),
       });
+      if (res.ok) {
+        toast.success(skipped ? "Marked as skipped" : "Marked as taken");
+      } else {
+        toast.error("Failed to log medication");
+      }
     } catch {
-      // handle error
+      toast.error("Something went wrong");
     }
   }
 

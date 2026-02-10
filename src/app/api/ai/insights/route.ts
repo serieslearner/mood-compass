@@ -3,21 +3,42 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/db";
 import { moodEntries } from "@/lib/db/schema";
 import { eq, desc } from "drizzle-orm";
-import Anthropic from "@anthropic-ai/sdk";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+function generateBasicInsights(
+  moods: { moodScore: number; energy: number; anxiety: number; irritability: number; sleepHours: number; sleepQuality: number }[]
+) {
+  const avgMood = moods.reduce((s, m) => s + m.moodScore, 0) / moods.length;
+  const avgEnergy = moods.reduce((s, m) => s + m.energy, 0) / moods.length;
+  const avgAnxiety = moods.reduce((s, m) => s + m.anxiety, 0) / moods.length;
+  const avgSleep = moods.reduce((s, m) => s + m.sleepHours, 0) / moods.length;
+
+  const lines: string[] = [];
+
+  lines.push(
+    `Based on your ${moods.length} recent entries, your average mood is ${avgMood.toFixed(1)}/10 with average energy at ${avgEnergy.toFixed(1)}/10. ${avgMood >= 6 ? "Things seem to be going relatively well overall." : avgMood >= 4 ? "Your mood has been in a moderate range." : "Your mood has been on the lower side — be gentle with yourself."}`
+  );
+
+  lines.push(
+    `You're averaging ${avgSleep.toFixed(1)} hours of sleep. ${avgSleep < 6 ? "That's below the recommended range — improving sleep could have a positive effect on your mood and energy." : avgSleep > 9 ? "That's on the higher side, which can sometimes be associated with low energy periods." : "That's within a healthy range, which is great for mood stability."}`
+  );
+
+  lines.push(
+    `Your average anxiety level is ${avgAnxiety.toFixed(1)}/10. ${avgAnxiety >= 7 ? "Anxiety has been quite high — consider discussing coping strategies with your care team." : avgAnxiety >= 4 ? "Some moderate anxiety is present — mindfulness or breathing exercises might help." : "Anxiety levels look manageable, which is a positive sign."}`
+  );
+
+  lines.push(
+    "Remember: these are simple observations based on your self-reported data, not medical advice. Share these patterns with your healthcare provider for personalized guidance."
+  );
+
+  return lines.join("\n\n");
+}
 
 export async function POST() {
   try {
     const session = await auth();
     if (!session?.user?.id) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) {
-      return NextResponse.json(
-        { error: "AI service not configured" },
-        { status: 503 }
-      );
     }
 
     const recentMoods = await db
@@ -34,22 +55,22 @@ export async function POST() {
       );
     }
 
-    const moodSummary = recentMoods
-      .map(
-        (m) =>
-          `${new Date(m.date).toLocaleDateString()}: mood=${m.moodScore}/10, energy=${m.energy}/10, anxiety=${m.anxiety}/10, irritability=${m.irritability}/10, sleep=${m.sleepHours}h (quality ${m.sleepQuality}/5)${m.notes ? `, notes: "${m.notes}"` : ""}`
-      )
-      .join("\n");
+    // Try AI-powered insights
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (apiKey) {
+      try {
+        const moodSummary = recentMoods
+          .map(
+            (m) =>
+              `${new Date(m.date).toLocaleDateString()}: mood=${m.moodScore}/10, energy=${m.energy}/10, anxiety=${m.anxiety}/10, irritability=${m.irritability}/10, sleep=${m.sleepHours}h (quality ${m.sleepQuality}/5)${m.notes ? `, notes: "${m.notes}"` : ""}`
+          )
+          .join("\n");
 
-    const client = new Anthropic({ apiKey });
+        const genAI = new GoogleGenerativeAI(apiKey);
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
-    const message = await client.messages.create({
-      model: "claude-sonnet-4-5-20250929",
-      max_tokens: 800,
-      messages: [
-        {
-          role: "user",
-          content: `You are a compassionate AI wellness assistant helping someone with bipolar disorder understand their mood patterns. Analyze the following mood data and provide helpful, non-clinical insights.
+        const result = await model.generateContent(
+          `You are a compassionate AI wellness assistant helping someone with bipolar disorder understand their mood patterns. Analyze the following mood data and provide helpful, non-clinical insights.
 
 Focus on:
 1. Overall mood trends (improving, declining, stable, cycling)
@@ -62,14 +83,20 @@ Important: You are NOT a doctor. Frame everything as observations and gentle sug
 Mood data (most recent first):
 ${moodSummary}
 
-Provide your analysis in 3-4 short paragraphs.`,
-        },
-      ],
-    });
+Provide your analysis in 3-4 short paragraphs.`
+        );
 
-    const textBlock = message.content.find((b) => b.type === "text");
-    const insights = textBlock ? textBlock.text : "Unable to generate insights at this time.";
+        const insights = result.response.text();
+        if (insights) {
+          return NextResponse.json({ insights });
+        }
+      } catch (e) {
+        console.error("Gemini API error, falling back to basic insights:", e);
+      }
+    }
 
+    // Fallback: basic statistical insights
+    const insights = generateBasicInsights(recentMoods);
     return NextResponse.json({ insights });
   } catch {
     return NextResponse.json(

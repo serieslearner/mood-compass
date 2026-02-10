@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -26,7 +27,7 @@ export function JournalEditor() {
         setAiPrompt(data.prompt);
       }
     } catch {
-      // AI not configured
+      toast.error("Could not generate prompt. Check AI configuration.");
     } finally {
       setPromptLoading(false);
     }
@@ -44,11 +45,14 @@ export function JournalEditor() {
       });
 
       if (res.ok) {
+        toast.success("Journal entry saved!");
         router.push("/journal");
         router.refresh();
+      } else {
+        toast.error("Failed to save journal entry");
       }
     } catch {
-      // handle error
+      toast.error("Something went wrong. Please try again.");
     } finally {
       setSaving(false);
     }
