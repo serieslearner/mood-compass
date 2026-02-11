@@ -15,6 +15,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Plus, Check, X } from "lucide-react";
+import { useTranslation } from "@/components/i18n-provider";
 
 interface Medication {
   id: string;
@@ -29,6 +30,7 @@ export default function MedicationsPage() {
   const [medications, setMedications] = useState<Medication[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const { t } = useTranslation();
 
   // Form state
   const [name, setName] = useState("");
@@ -65,17 +67,17 @@ export default function MedicationsPage() {
       });
 
       if (res.ok) {
-        toast.success("Medication added!");
+        toast.success(t("medications.addedSuccess"));
         setName("");
         setDosage("");
         setFrequency("");
         setDialogOpen(false);
         fetchMedications();
       } else {
-        toast.error("Failed to add medication");
+        toast.error(t("medications.addedError"));
       }
     } catch {
-      toast.error("Something went wrong");
+      toast.error(t("common.somethingWentWrong"));
     } finally {
       setSaving(false);
     }
@@ -89,12 +91,12 @@ export default function MedicationsPage() {
         body: JSON.stringify({ medicationId, skipped }),
       });
       if (res.ok) {
-        toast.success(skipped ? "Marked as skipped" : "Marked as taken");
+        toast.success(skipped ? t("medications.markedSkipped") : t("medications.markedTaken"));
       } else {
-        toast.error("Failed to log medication");
+        toast.error(t("medications.logError"));
       }
     } catch {
-      toast.error("Something went wrong");
+      toast.error(t("common.somethingWentWrong"));
     }
   }
 
@@ -102,53 +104,53 @@ export default function MedicationsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Medications</h1>
+          <h1 className="text-2xl font-bold">{t("medications.title")}</h1>
           <p className="text-muted-foreground">
-            Track your medications and log when you take them.
+            {t("medications.subtitle")}
           </p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <Plus className="mr-2 h-4 w-4" />
-              Add Medication
+              {t("medications.addMedication")}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add Medication</DialogTitle>
+              <DialogTitle>{t("medications.dialogTitle")}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleAddMedication} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="med-name">Medication Name</Label>
+                <Label htmlFor="med-name">{t("medications.name")}</Label>
                 <Input
                   id="med-name"
-                  placeholder="e.g., Lithium"
+                  placeholder={t("medications.namePlaceholder")}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="med-dosage">Dosage</Label>
+                <Label htmlFor="med-dosage">{t("medications.dosage")}</Label>
                 <Input
                   id="med-dosage"
-                  placeholder="e.g., 300mg"
+                  placeholder={t("medications.dosagePlaceholder")}
                   value={dosage}
                   onChange={(e) => setDosage(e.target.value)}
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="med-frequency">Frequency</Label>
+                <Label htmlFor="med-frequency">{t("medications.frequency")}</Label>
                 <Input
                   id="med-frequency"
-                  placeholder="e.g., Twice daily"
+                  placeholder={t("medications.frequencyPlaceholder")}
                   value={frequency}
                   onChange={(e) => setFrequency(e.target.value)}
                 />
               </div>
               <Button type="submit" className="w-full" disabled={saving}>
-                {saving ? "Adding..." : "Add medication"}
+                {saving ? t("medications.adding") : t("medications.addButton")}
               </Button>
             </form>
           </DialogContent>
@@ -156,11 +158,11 @@ export default function MedicationsPage() {
       </div>
 
       {loading ? (
-        <p className="text-sm text-muted-foreground">Loading...</p>
+        <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
       ) : medications.length === 0 ? (
         <Card>
           <CardContent className="py-8 text-center text-muted-foreground">
-            No medications added yet. Add your first medication to start tracking.
+            {t("medications.noMedications")}
           </CardContent>
         </Card>
       ) : (
@@ -171,7 +173,7 @@ export default function MedicationsPage() {
                 <div className="flex items-center justify-between">
                   <CardTitle className="text-base">{med.name}</CardTitle>
                   <Badge variant={med.active ? "default" : "secondary"}>
-                    {med.active ? "Active" : "Inactive"}
+                    {med.active ? t("medications.active") : t("medications.inactive")}
                   </Badge>
                 </div>
                 {(med.dosage || med.frequency) && (
@@ -188,7 +190,7 @@ export default function MedicationsPage() {
                     onClick={() => logMedication(med.id, false)}
                   >
                     <Check className="mr-1 h-3 w-3" />
-                    Taken
+                    {t("medications.taken")}
                   </Button>
                   <Button
                     size="sm"
@@ -196,7 +198,7 @@ export default function MedicationsPage() {
                     onClick={() => logMedication(med.id, true)}
                   >
                     <X className="mr-1 h-3 w-3" />
-                    Skipped
+                    {t("medications.skipped")}
                   </Button>
                 </div>
               </CardContent>

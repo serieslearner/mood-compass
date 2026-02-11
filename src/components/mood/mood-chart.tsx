@@ -10,6 +10,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useTranslation } from "@/components/i18n-provider";
 
 interface MoodDataPoint {
   date: string;
@@ -21,6 +22,9 @@ interface MoodDataPoint {
 export function MoodChart() {
   const [data, setData] = useState<MoodDataPoint[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t, locale } = useTranslation();
+
+  const dateLocale = locale === "ko" ? "ko-KR" : "en-US";
 
   useEffect(() => {
     async function fetchMoodData() {
@@ -31,7 +35,7 @@ export function MoodChart() {
           setData(
             entries
               .map((e: { date: string; moodScore: number; energy: number; anxiety: number }) => ({
-                date: new Date(e.date).toLocaleDateString("en-US", {
+                date: new Date(e.date).toLocaleDateString(dateLocale, {
                   month: "short",
                   day: "numeric",
                 }),
@@ -49,12 +53,12 @@ export function MoodChart() {
       }
     }
     fetchMoodData();
-  }, []);
+  }, [dateLocale]);
 
   if (loading) {
     return (
       <div className="flex h-[200px] items-center justify-center text-sm text-muted-foreground">
-        Loading chart...
+        {t("moodChart.loading")}
       </div>
     );
   }
@@ -62,7 +66,7 @@ export function MoodChart() {
   if (data.length === 0) {
     return (
       <div className="flex h-[200px] items-center justify-center text-sm text-muted-foreground">
-        No mood entries yet. Start by logging your first mood!
+        {t("moodChart.noData")}
       </div>
     );
   }
@@ -77,7 +81,7 @@ export function MoodChart() {
         <Area
           type="monotone"
           dataKey="moodScore"
-          name="Mood"
+          name={t("moodChart.mood")}
           stroke="hsl(var(--primary))"
           fill="hsl(var(--primary))"
           fillOpacity={0.2}
@@ -85,7 +89,7 @@ export function MoodChart() {
         <Area
           type="monotone"
           dataKey="energy"
-          name="Energy"
+          name={t("moodChart.energy")}
           stroke="hsl(var(--chart-2))"
           fill="hsl(var(--chart-2))"
           fillOpacity={0.1}

@@ -6,38 +6,43 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { SmilePlus, BookOpen, Brain } from "lucide-react";
 import { MoodChart } from "@/components/mood/mood-chart";
+import { useTranslation } from "@/components/i18n-provider";
+import type { TranslationKey } from "@/lib/i18n";
 
-const quickActions = [
+const quickActions: { href: string; icon: typeof SmilePlus; titleKey: TranslationKey; descKey: TranslationKey }[] = [
   {
     href: "/mood/new",
     icon: SmilePlus,
-    title: "Log Mood",
-    description: "Record how you're feeling right now",
+    titleKey: "dashboard.logMood",
+    descKey: "dashboard.logMoodDesc",
   },
   {
     href: "/journal/new",
     icon: BookOpen,
-    title: "Write Journal",
-    description: "Start a new journal entry",
+    titleKey: "dashboard.writeJournal",
+    descKey: "dashboard.writeJournalDesc",
   },
   {
     href: "/insights",
     icon: Brain,
-    title: "View Insights",
-    description: "See AI-powered mood analysis",
+    titleKey: "dashboard.viewInsights",
+    descKey: "dashboard.viewInsightsDesc",
   },
 ];
 
 export default function DashboardPage() {
   const { data: session } = useSession();
-  const firstName = session?.user?.name?.split(" ")[0] ?? "there";
+  const { t } = useTranslation();
+  const firstName = session?.user?.name?.split(" ")[0] ?? "";
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Welcome back, {firstName}</h1>
+        <h1 className="text-2xl font-bold">
+          {t("dashboard.welcome", { name: firstName || "there" })}
+        </h1>
         <p className="text-muted-foreground">
-          Here&apos;s an overview of your recent activity.
+          {t("dashboard.subtitle")}
         </p>
       </div>
 
@@ -48,10 +53,10 @@ export default function DashboardPage() {
             <Card className="transition-colors hover:bg-accent">
               <CardHeader className="pb-2">
                 <action.icon className="h-6 w-6 text-primary" />
-                <CardTitle className="text-base">{action.title}</CardTitle>
+                <CardTitle className="text-base">{t(action.titleKey)}</CardTitle>
               </CardHeader>
               <CardContent>
-                <CardDescription>{action.description}</CardDescription>
+                <CardDescription>{t(action.descKey)}</CardDescription>
               </CardContent>
             </Card>
           </Link>
@@ -63,12 +68,12 @@ export default function DashboardPage() {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle>Mood — Last 7 Days</CardTitle>
-              <CardDescription>Your recent mood trends</CardDescription>
+              <CardTitle>{t("dashboard.moodLast7Days")}</CardTitle>
+              <CardDescription>{t("dashboard.recentMoodTrends")}</CardDescription>
             </div>
             <Link href="/mood">
               <Button variant="outline" size="sm">
-                View all
+                {t("dashboard.viewAll")}
               </Button>
             </Link>
           </div>

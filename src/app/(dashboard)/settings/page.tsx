@@ -11,10 +11,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { Sun, Moon, Monitor } from "lucide-react";
+import { useTranslation } from "@/components/i18n-provider";
 
 export default function SettingsPage() {
   const { data: session, update } = useSession();
   const { theme, setTheme } = useTheme();
+  const { t, locale, setLocale } = useTranslation();
   const user = session?.user;
   const initials = user?.name
     ? user.name
@@ -43,14 +45,14 @@ export default function SettingsPage() {
         body: JSON.stringify({ name }),
       });
       if (res.ok) {
-        toast.success("Profile updated!");
+        toast.success(t("settings.profileUpdated"));
         await update({ name });
       } else {
         const data = await res.json();
-        toast.error(data.error || "Failed to update profile");
+        toast.error(data.error || t("settings.profileError"));
       }
     } catch {
-      toast.error("Something went wrong");
+      toast.error(t("common.somethingWentWrong"));
     } finally {
       setSavingProfile(false);
     }
@@ -66,15 +68,15 @@ export default function SettingsPage() {
         body: JSON.stringify({ currentPassword, newPassword }),
       });
       if (res.ok) {
-        toast.success("Password changed!");
+        toast.success(t("settings.passwordChanged"));
         setCurrentPassword("");
         setNewPassword("");
       } else {
         const data = await res.json();
-        toast.error(data.error || "Failed to change password");
+        toast.error(data.error || t("settings.passwordError"));
       }
     } catch {
-      toast.error("Something went wrong");
+      toast.error(t("common.somethingWentWrong"));
     } finally {
       setSavingPassword(false);
     }
@@ -83,15 +85,15 @@ export default function SettingsPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Settings</h1>
-        <p className="text-muted-foreground">Manage your account and preferences.</p>
+        <h1 className="text-2xl font-bold">{t("settings.title")}</h1>
+        <p className="text-muted-foreground">{t("settings.subtitle")}</p>
       </div>
 
       {/* Profile */}
       <Card>
         <CardHeader>
-          <CardTitle>Profile</CardTitle>
-          <CardDescription>Update your display name</CardDescription>
+          <CardTitle>{t("settings.profile")}</CardTitle>
+          <CardDescription>{t("settings.profileDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="mb-4 flex items-center gap-4">
@@ -100,23 +102,23 @@ export default function SettingsPage() {
               <AvatarFallback>{initials}</AvatarFallback>
             </Avatar>
             <div>
-              <p className="font-medium">{user?.name ?? "No name set"}</p>
+              <p className="font-medium">{user?.name ?? t("settings.noName")}</p>
               <p className="text-sm text-muted-foreground">{user?.email}</p>
             </div>
           </div>
           <Separator className="mb-4" />
           <form onSubmit={handleUpdateProfile} className="flex items-end gap-3">
             <div className="flex-1 space-y-2">
-              <Label htmlFor="name">Display Name</Label>
+              <Label htmlFor="name">{t("settings.displayName")}</Label>
               <Input
                 id="name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Your name"
+                placeholder={t("settings.namePlaceholder")}
               />
             </div>
             <Button type="submit" disabled={savingProfile}>
-              {savingProfile ? "Saving..." : "Save"}
+              {savingProfile ? t("common.saving") : t("common.save")}
             </Button>
           </form>
         </CardContent>
@@ -125,13 +127,13 @@ export default function SettingsPage() {
       {/* Password */}
       <Card>
         <CardHeader>
-          <CardTitle>Password</CardTitle>
-          <CardDescription>Change your password (credentials accounts only)</CardDescription>
+          <CardTitle>{t("settings.password")}</CardTitle>
+          <CardDescription>{t("settings.passwordDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleChangePassword} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="current-pw">Current Password</Label>
+              <Label htmlFor="current-pw">{t("settings.currentPassword")}</Label>
               <Input
                 id="current-pw"
                 type="password"
@@ -141,11 +143,11 @@ export default function SettingsPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="new-pw">New Password</Label>
+              <Label htmlFor="new-pw">{t("settings.newPassword")}</Label>
               <Input
                 id="new-pw"
                 type="password"
-                placeholder="At least 8 characters"
+                placeholder={t("settings.newPasswordPlaceholder")}
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 minLength={8}
@@ -153,7 +155,7 @@ export default function SettingsPage() {
               />
             </div>
             <Button type="submit" disabled={savingPassword}>
-              {savingPassword ? "Changing..." : "Change password"}
+              {savingPassword ? t("settings.changing") : t("settings.changePassword")}
             </Button>
           </form>
         </CardContent>
@@ -162,8 +164,8 @@ export default function SettingsPage() {
       {/* Theme */}
       <Card>
         <CardHeader>
-          <CardTitle>Appearance</CardTitle>
-          <CardDescription>Choose your preferred theme</CardDescription>
+          <CardTitle>{t("settings.appearance")}</CardTitle>
+          <CardDescription>{t("settings.appearanceDesc")}</CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex gap-2">
@@ -173,7 +175,7 @@ export default function SettingsPage() {
               onClick={() => setTheme("light")}
             >
               <Sun className="mr-2 h-4 w-4" />
-              Light
+              {t("settings.light")}
             </Button>
             <Button
               variant={theme === "dark" ? "default" : "outline"}
@@ -181,7 +183,7 @@ export default function SettingsPage() {
               onClick={() => setTheme("dark")}
             >
               <Moon className="mr-2 h-4 w-4" />
-              Dark
+              {t("settings.dark")}
             </Button>
             <Button
               variant={theme === "system" ? "default" : "outline"}
@@ -189,7 +191,33 @@ export default function SettingsPage() {
               onClick={() => setTheme("system")}
             >
               <Monitor className="mr-2 h-4 w-4" />
-              System
+              {t("settings.system")}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Language */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t("settings.language")}</CardTitle>
+          <CardDescription>{t("settings.languageDesc")}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-2">
+            <Button
+              variant={locale === "ko" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setLocale("ko")}
+            >
+              {t("lang.ko")}
+            </Button>
+            <Button
+              variant={locale === "en" ? "default" : "outline"}
+              size="sm"
+              onClick={() => setLocale("en")}
+            >
+              {t("lang.en")}
             </Button>
           </div>
         </CardContent>
@@ -198,10 +226,9 @@ export default function SettingsPage() {
       {/* Privacy */}
       <Card>
         <CardHeader>
-          <CardTitle>Data &amp; Privacy</CardTitle>
+          <CardTitle>{t("settings.dataPrivacy")}</CardTitle>
           <CardDescription>
-            Your data is stored securely and is only accessible by you. MoodCompass
-            is open source — you can audit the code at any time.
+            {t("settings.dataPrivacyDesc")}
           </CardDescription>
         </CardHeader>
       </Card>

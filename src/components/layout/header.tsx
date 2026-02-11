@@ -26,19 +26,22 @@ import {
   Brain,
   Settings,
 } from "lucide-react";
+import { useTranslation } from "@/components/i18n-provider";
+import type { TranslationKey } from "@/lib/i18n";
 
-const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/mood", label: "Mood", icon: SmilePlus },
-  { href: "/journal", label: "Journal", icon: BookOpen },
-  { href: "/medications", label: "Medications", icon: Pill },
-  { href: "/insights", label: "Insights", icon: Brain },
-  { href: "/settings", label: "Settings", icon: Settings },
+const navItems: { href: string; labelKey: TranslationKey; icon: typeof LayoutDashboard }[] = [
+  { href: "/dashboard", labelKey: "nav.dashboard", icon: LayoutDashboard },
+  { href: "/mood", labelKey: "nav.mood", icon: SmilePlus },
+  { href: "/journal", labelKey: "nav.journal", icon: BookOpen },
+  { href: "/medications", labelKey: "nav.medications", icon: Pill },
+  { href: "/insights", labelKey: "nav.insights", icon: Brain },
+  { href: "/settings", labelKey: "nav.settings", icon: Settings },
 ];
 
 export function Header() {
   const { data: session } = useSession();
   const pathname = usePathname();
+  const { t, locale, setLocale } = useTranslation();
   const user = session?.user;
   const initials = user?.name
     ? user.name
@@ -60,7 +63,7 @@ export function Header() {
         <SheetContent side="left" className="w-64 p-0">
           <div className="flex h-14 items-center gap-2 border-b px-4">
             <Compass className="h-6 w-6 text-primary" />
-            <span className="text-lg font-semibold">MoodCompass</span>
+            <span className="text-lg font-semibold">{t("common.appName")}</span>
           </div>
           <nav className="flex flex-col gap-1 p-3">
             {navItems.map((item) => {
@@ -78,7 +81,7 @@ export function Header() {
                   )}
                 >
                   <item.icon className="h-4 w-4" />
-                  {item.label}
+                  {t(item.labelKey)}
                 </Link>
               );
             })}
@@ -88,26 +91,38 @@ export function Header() {
 
       <div className="hidden md:block" />
 
-      {/* User menu */}
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" className="gap-2">
-            <Avatar className="h-7 w-7">
-              <AvatarImage src={user?.image ?? undefined} />
-              <AvatarFallback className="text-xs">{initials}</AvatarFallback>
-            </Avatar>
-            <span className="hidden text-sm sm:inline-block">
-              {user?.name ?? user?.email ?? "Account"}
-            </span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/sign-in" })}>
-            <LogOut className="mr-2 h-4 w-4" />
-            Sign out
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div className="flex items-center gap-2">
+        {/* Language toggle */}
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => setLocale(locale === "ko" ? "en" : "ko")}
+          className="text-xs"
+        >
+          {locale === "ko" ? "EN" : "KO"}
+        </Button>
+
+        {/* User menu */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" className="gap-2">
+              <Avatar className="h-7 w-7">
+                <AvatarImage src={user?.image ?? undefined} />
+                <AvatarFallback className="text-xs">{initials}</AvatarFallback>
+              </Avatar>
+              <span className="hidden text-sm sm:inline-block">
+                {user?.name ?? user?.email ?? t("common.account")}
+              </span>
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem onClick={() => signOut({ callbackUrl: "/sign-in" })}>
+              <LogOut className="mr-2 h-4 w-4" />
+              {t("common.signOut")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
     </header>
   );
 }

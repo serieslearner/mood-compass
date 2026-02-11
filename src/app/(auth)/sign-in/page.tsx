@@ -9,9 +9,11 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { useTranslation } from "@/components/i18n-provider";
 
 export default function SignInPage() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -29,7 +31,7 @@ export default function SignInPage() {
     });
 
     if (result?.error) {
-      setError("Invalid email or password");
+      setError(t("auth.signIn.invalidCredentials"));
       setLoading(false);
     } else {
       router.push("/dashboard");
@@ -40,24 +42,24 @@ export default function SignInPage() {
   return (
     <Card>
       <CardHeader className="text-center">
-        <CardTitle className="text-2xl">Welcome back</CardTitle>
-        <CardDescription>Sign in to MoodCompass</CardDescription>
+        <CardTitle className="text-2xl">{t("auth.signIn.title")}</CardTitle>
+        <CardDescription>{t("auth.signIn.subtitle")}</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">{t("common.email")}</Label>
             <Input
               id="email"
               type="email"
-              placeholder="you@example.com"
+              placeholder={t("auth.signIn.emailPlaceholder")}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
+            <Label htmlFor="password">{t("common.password")}</Label>
             <Input
               id="password"
               type="password"
@@ -70,14 +72,14 @@ export default function SignInPage() {
             <p className="text-sm text-destructive">{error}</p>
           )}
           <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Signing in..." : "Sign in"}
+            {loading ? t("auth.signIn.signingIn") : t("common.signIn")}
           </Button>
         </form>
 
         <div className="relative my-6">
           <Separator />
           <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-card px-2 text-xs text-muted-foreground">
-            or
+            {t("common.or")}
           </span>
         </div>
 
@@ -104,14 +106,14 @@ export default function SignInPage() {
               fill="#EA4335"
             />
           </svg>
-          Continue with Google
+          {t("auth.signIn.continueWithGoogle")}
         </Button>
       </CardContent>
       <CardFooter className="justify-center">
         <p className="text-sm text-muted-foreground">
-          Don&apos;t have an account?{" "}
+          {t("auth.signIn.noAccount")}{" "}
           <Link href="/sign-up" className="text-primary underline-offset-4 hover:underline">
-            Sign up
+            {t("common.signUp")}
           </Link>
         </p>
       </CardFooter>

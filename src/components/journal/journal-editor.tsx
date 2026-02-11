@@ -9,9 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Brain, Loader2 } from "lucide-react";
+import { useTranslation } from "@/components/i18n-provider";
 
 export function JournalEditor() {
   const router = useRouter();
+  const { t, locale } = useTranslation();
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [aiPrompt, setAiPrompt] = useState("");
@@ -21,13 +23,13 @@ export function JournalEditor() {
   async function generatePrompt() {
     setPromptLoading(true);
     try {
-      const res = await fetch("/api/ai/journal-prompt", { method: "POST" });
+      const res = await fetch(`/api/ai/journal-prompt?locale=${locale}`, { method: "POST" });
       if (res.ok) {
         const data = await res.json();
         setAiPrompt(data.prompt);
       }
     } catch {
-      toast.error("Could not generate prompt. Check AI configuration.");
+      toast.error(t("journalEditor.promptError"));
     } finally {
       setPromptLoading(false);
     }
@@ -45,14 +47,14 @@ export function JournalEditor() {
       });
 
       if (res.ok) {
-        toast.success("Journal entry saved!");
+        toast.success(t("journalEditor.savedSuccess"));
         router.push("/journal");
         router.refresh();
       } else {
-        toast.error("Failed to save journal entry");
+        toast.error(t("journalEditor.savedError"));
       }
     } catch {
-      toast.error("Something went wrong. Please try again.");
+      toast.error(t("journalEditor.savedErrorGeneric"));
     } finally {
       setSaving(false);
     }
@@ -64,7 +66,7 @@ export function JournalEditor() {
       <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-base">AI Writing Prompt</CardTitle>
+            <CardTitle className="text-base">{t("journalEditor.aiPromptTitle")}</CardTitle>
             <Button
               type="button"
               variant="outline"
@@ -77,7 +79,7 @@ export function JournalEditor() {
               ) : (
                 <Brain className="mr-2 h-4 w-4" />
               )}
-              Generate prompt
+              {t("journalEditor.generatePrompt")}
             </Button>
           </div>
         </CardHeader>
@@ -92,20 +94,20 @@ export function JournalEditor() {
       <Card>
         <CardContent className="space-y-4 pt-6">
           <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="title">{t("journalEditor.title")}</Label>
             <Input
               id="title"
-              placeholder="Give your entry a title..."
+              placeholder={t("journalEditor.titlePlaceholder")}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="content">Content</Label>
+            <Label htmlFor="content">{t("journalEditor.content")}</Label>
             <Textarea
               id="content"
-              placeholder="Write your thoughts..."
+              placeholder={t("journalEditor.contentPlaceholder")}
               value={content}
               onChange={(e) => setContent(e.target.value)}
               rows={12}
@@ -116,7 +118,7 @@ export function JournalEditor() {
       </Card>
 
       <Button type="submit" className="w-full" disabled={saving}>
-        {saving ? "Saving..." : "Save entry"}
+        {saving ? t("common.saving") : t("journalEditor.saveEntry")}
       </Button>
     </form>
   );

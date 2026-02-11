@@ -8,9 +8,11 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { Textarea } from "@/components/ui/textarea";
+import { useTranslation } from "@/components/i18n-provider";
 
 export function MoodForm() {
   const router = useRouter();
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [moodScore, setMoodScore] = useState(5);
   const [energy, setEnergy] = useState(5);
@@ -40,14 +42,14 @@ export function MoodForm() {
       });
 
       if (res.ok) {
-        toast.success("Mood entry saved!");
+        toast.success(t("moodForm.savedSuccess"));
         router.push("/mood");
         router.refresh();
       } else {
-        toast.error("Failed to save mood entry");
+        toast.error(t("moodForm.savedError"));
       }
     } catch {
-      toast.error("Something went wrong. Please try again.");
+      toast.error(t("moodForm.savedErrorGeneric"));
     } finally {
       setLoading(false);
     }
@@ -57,13 +59,13 @@ export function MoodForm() {
     <form onSubmit={handleSubmit} className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>How are you feeling?</CardTitle>
+          <CardTitle>{t("moodForm.title")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Mood Score */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label>Mood</Label>
+              <Label>{t("moodForm.mood")}</Label>
               <span className="text-sm font-medium">{moodScore}/10</span>
             </div>
             <Slider
@@ -74,15 +76,15 @@ export function MoodForm() {
               step={1}
             />
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Very low</span>
-              <span>Very high</span>
+              <span>{t("moodForm.moodVeryLow")}</span>
+              <span>{t("moodForm.moodVeryHigh")}</span>
             </div>
           </div>
 
           {/* Energy */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label>Energy</Label>
+              <Label>{t("moodForm.energy")}</Label>
               <span className="text-sm font-medium">{energy}/10</span>
             </div>
             <Slider
@@ -93,15 +95,15 @@ export function MoodForm() {
               step={1}
             />
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Exhausted</span>
-              <span>Very energetic</span>
+              <span>{t("moodForm.exhausted")}</span>
+              <span>{t("moodForm.veryEnergetic")}</span>
             </div>
           </div>
 
           {/* Anxiety */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label>Anxiety</Label>
+              <Label>{t("moodForm.anxiety")}</Label>
               <span className="text-sm font-medium">{anxiety}/10</span>
             </div>
             <Slider
@@ -112,15 +114,15 @@ export function MoodForm() {
               step={1}
             />
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Calm</span>
-              <span>Very anxious</span>
+              <span>{t("moodForm.calm")}</span>
+              <span>{t("moodForm.veryAnxious")}</span>
             </div>
           </div>
 
           {/* Irritability */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label>Irritability</Label>
+              <Label>{t("moodForm.irritability")}</Label>
               <span className="text-sm font-medium">{irritability}/10</span>
             </div>
             <Slider
@@ -131,8 +133,8 @@ export function MoodForm() {
               step={1}
             />
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Relaxed</span>
-              <span>Very irritable</span>
+              <span>{t("moodForm.relaxed")}</span>
+              <span>{t("moodForm.veryIrritable")}</span>
             </div>
           </div>
         </CardContent>
@@ -140,13 +142,13 @@ export function MoodForm() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Sleep</CardTitle>
+          <CardTitle>{t("moodForm.sleep")}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Sleep Hours */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label>Hours of sleep</Label>
+              <Label>{t("moodForm.hoursOfSleep")}</Label>
               <span className="text-sm font-medium">{sleepHours}h</span>
             </div>
             <Slider
@@ -161,7 +163,7 @@ export function MoodForm() {
           {/* Sleep Quality */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <Label>Sleep quality</Label>
+              <Label>{t("moodForm.sleepQuality")}</Label>
               <span className="text-sm font-medium">{sleepQuality}/5</span>
             </div>
             <Slider
@@ -172,8 +174,8 @@ export function MoodForm() {
               step={1}
             />
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Terrible</span>
-              <span>Excellent</span>
+              <span>{t("moodForm.terrible")}</span>
+              <span>{t("moodForm.excellent")}</span>
             </div>
           </div>
         </CardContent>
@@ -181,11 +183,11 @@ export function MoodForm() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Notes</CardTitle>
+          <CardTitle>{t("moodForm.notes")}</CardTitle>
         </CardHeader>
         <CardContent>
           <Textarea
-            placeholder="Anything else you'd like to note about today? (optional)"
+            placeholder={t("moodForm.notesPlaceholder")}
             value={notes}
             onChange={(e) => setNotes(e.target.value)}
             rows={4}
@@ -194,7 +196,7 @@ export function MoodForm() {
       </Card>
 
       <Button type="submit" className="w-full" disabled={loading}>
-        {loading ? "Saving..." : "Save mood entry"}
+        {loading ? t("common.saving") : t("moodForm.saveMoodEntry")}
       </Button>
     </form>
   );

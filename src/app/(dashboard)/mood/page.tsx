@@ -7,6 +7,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { MoodChart } from "@/components/mood/mood-chart";
 import { Plus } from "lucide-react";
+import { useTranslation } from "@/components/i18n-provider";
+import type { TranslationKey } from "@/lib/i18n";
 
 interface MoodEntry {
   id: string;
@@ -20,12 +22,12 @@ interface MoodEntry {
   notes: string | null;
 }
 
-function moodLabel(score: number): string {
-  if (score <= 2) return "Very Low";
-  if (score <= 4) return "Low";
-  if (score <= 6) return "Moderate";
-  if (score <= 8) return "Good";
-  return "Excellent";
+function moodLabelKey(score: number): TranslationKey {
+  if (score <= 2) return "mood.labelVeryLow";
+  if (score <= 4) return "mood.labelLow";
+  if (score <= 6) return "mood.labelModerate";
+  if (score <= 8) return "mood.labelGood";
+  return "mood.labelExcellent";
 }
 
 function moodVariant(score: number): "destructive" | "secondary" | "default" | "outline" {
@@ -38,6 +40,7 @@ function moodVariant(score: number): "destructive" | "secondary" | "default" | "
 export default function MoodPage() {
   const [entries, setEntries] = useState<MoodEntry[]>([]);
   const [loading, setLoading] = useState(true);
+  const { t, locale } = useTranslation();
 
   useEffect(() => {
     async function fetchEntries() {
@@ -55,19 +58,21 @@ export default function MoodPage() {
     fetchEntries();
   }, []);
 
+  const dateLocale = locale === "ko" ? "ko-KR" : "en-US";
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold">Mood Tracking</h1>
+          <h1 className="text-2xl font-bold">{t("mood.title")}</h1>
           <p className="text-muted-foreground">
-            Track and visualize your mood over time.
+            {t("mood.subtitle")}
           </p>
         </div>
         <Link href="/mood/new">
           <Button>
             <Plus className="mr-2 h-4 w-4" />
-            Log Mood
+            {t("mood.logMood")}
           </Button>
         </Link>
       </div>
@@ -75,8 +80,8 @@ export default function MoodPage() {
       {/* Chart */}
       <Card>
         <CardHeader>
-          <CardTitle>Mood Over Time</CardTitle>
-          <CardDescription>Your mood, energy, and anxiety trends</CardDescription>
+          <CardTitle>{t("mood.moodOverTime")}</CardTitle>
+          <CardDescription>{t("mood.moodTrends")}</CardDescription>
         </CardHeader>
         <CardContent>
           <MoodChart />
@@ -85,13 +90,13 @@ export default function MoodPage() {
 
       {/* Entry list */}
       <div className="space-y-3">
-        <h2 className="text-lg font-semibold">Recent Entries</h2>
+        <h2 className="text-lg font-semibold">{t("mood.recentEntries")}</h2>
         {loading ? (
-          <p className="text-sm text-muted-foreground">Loading...</p>
+          <p className="text-sm text-muted-foreground">{t("common.loading")}</p>
         ) : entries.length === 0 ? (
           <Card>
             <CardContent className="py-8 text-center text-muted-foreground">
-              No mood entries yet. Start by logging your first mood!
+              {t("mood.noEntries")}
             </CardContent>
           </Card>
         ) : (
@@ -100,16 +105,16 @@ export default function MoodPage() {
               <CardContent className="flex items-center justify-between py-4">
                 <div className="space-y-1">
                   <p className="text-sm font-medium">
-                    {new Date(entry.date).toLocaleDateString("en-US", {
+                    {new Date(entry.date).toLocaleDateString(dateLocale, {
                       weekday: "long",
                       month: "long",
                       day: "numeric",
                     })}
                   </p>
                   <div className="flex gap-2 text-xs text-muted-foreground">
-                    <span>Energy: {entry.energy}/10</span>
-                    <span>Anxiety: {entry.anxiety}/10</span>
-                    <span>Sleep: {entry.sleepHours}h</span>
+                    <span>{t("mood.energy", { value: entry.energy })}</span>
+                    <span>{t("mood.anxiety", { value: entry.anxiety })}</span>
+                    <span>{t("mood.sleep", { value: entry.sleepHours })}</span>
                   </div>
                   {entry.notes && (
                     <p className="text-sm text-muted-foreground line-clamp-1">
@@ -118,7 +123,7 @@ export default function MoodPage() {
                   )}
                 </div>
                 <Badge variant={moodVariant(entry.moodScore)}>
-                  {moodLabel(entry.moodScore)} ({entry.moodScore}/10)
+                  {t(moodLabelKey(entry.moodScore))} ({entry.moodScore}/10)
                 </Badge>
               </CardContent>
             </Card>
